@@ -34,8 +34,6 @@ public class ConditionalRBMPredictor  implements Predictor{
 	public Prediction predict(double[] inputData){
 		Prediction returnValue=new Prediction();
 		long startTime=System.currentTimeMillis();
-
-		double maxError=Double.MIN_VALUE;
 		
 		for(int i=0;i<EPOCHS;i++){
 			System.out.println("Epoch:"+i);
@@ -54,11 +52,9 @@ public class ConditionalRBMPredictor  implements Predictor{
 				}
 				crbm.restoreWeights();
 				returnValue.networkError=minError;
-				if(maxError<minError)maxError=minError;
 			}
 		}
 		
-		returnValue.networkError=maxError;
 
 		double[][] seed=new double[timeWindowWidth][outputUnitsSize];
 		double[][] batchData=new double[timeWindowWidth][inputUnitsSize];
@@ -94,7 +90,7 @@ public class ConditionalRBMPredictor  implements Predictor{
 	        hiddenActivities = crbm.hiddenLayer.generateData(hiddenActivities);
 	        double[][] targetreconstruction = crbm.visibleOutputLayer.getActivationProbabilities(Matrix.multiplyTranspose(hiddenActivities, crbm.outputWeights));
 	        
-	        for (int gibbs = 0; gibbs <1; gibbs++) {
+	        for (int gibbs = 0; gibbs <2; gibbs++) {
 	            outputHiddenActivities = Matrix.multiply(targetreconstruction, crbm.outputWeights);
 	            visibleHiddenActivities = Matrix.multiply(binaryBatchData, crbm.weights);
 	            hiddenActivities = crbm.hiddenLayer.getActivationProbabilities(Matrix.add(outputHiddenActivities, visibleHiddenActivities));

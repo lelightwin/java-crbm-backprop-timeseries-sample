@@ -3,6 +3,7 @@ package tr.org.predictionserver.neural.backprop;
 
 import tr.org.predictionserver.neural.Prediction;
 import tr.org.predictionserver.neural.Predictor;
+import tr.org.predictionserver.neural.crbm.Matrix;
 
 public class BackPropPredictor implements Predictor{
 	private final static int EPOCHS=400;
@@ -24,7 +25,7 @@ public class BackPropPredictor implements Predictor{
 		long startTime=System.currentTimeMillis();
 		double minimumNetError=Double.MAX_VALUE;
 		for(int i=0;i<EPOCHS;i++){
-			for(int j=0;j<inputData.length-timeWindowWidth-outputUnitsSize;j++){
+			for(int j=0;j<inputData.length-timeWindowWidth-outputUnitsSize+1;j++){
 				double[] timeWindow=new double[timeWindowWidth];
 				System.arraycopy(inputData, j, timeWindow, 0, timeWindowWidth);
 				double[] targetWindow=new double[outputUnitsSize];
@@ -43,14 +44,29 @@ public class BackPropPredictor implements Predictor{
 			}
 		}
 		
+		
+		
+		
+		
 		double[] lastTimeWindow=new double[timeWindowWidth];
 		System.arraycopy(inputData, inputData.length-timeWindowWidth, lastTimeWindow, 0, timeWindowWidth);
 		network.restoreWeights();
 		returnValue.networkError=network.savedError;
-		network.setInput(lastTimeWindow);
-		network.propagate();
-		returnValue.networkError=network.computeOutputError(lastTimeWindow);
-		returnValue.predictedValues=network.getOutput();
+		
+		
+		
+		for(int time=0;time<timeWindowWidth;time++){
+			network.setInput(lastTimeWindow);
+			network.propagate();
+			returnValue.predictedValues=network.getOutput();
+			for(int i=0;i<timeWindowWidth-1;i++){
+				lastTimeWindow[i]=lastTimeWindow[i+1];
+			}
+			lastTimeWindow[lastTimeWindow.length-1]=returnValue.predictedValues[0];
+		}
+		
+		
+		
 		returnValue.totoalTimeMillis=System.currentTimeMillis()-startTime;
 		return returnValue;
 	}

@@ -7,16 +7,12 @@ import tr.org.predictionserver.neural.crbm.Matrix;
 
 public class BackPropPredictor implements Predictor{
 	private final static int EPOCHS=400;
-	int inputUnitsSize;
-	int outputUnitsSize;
 	int timeWindowWidth;
 	Network network=null;
 	
-	public BackPropPredictor(int inputUnitsSize,int outputUnitsSize,int timeWindowWidth){
-		this.inputUnitsSize=inputUnitsSize;
-		this.outputUnitsSize=outputUnitsSize;
+	public BackPropPredictor(int timeWindowWidth){
 		this.timeWindowWidth=timeWindowWidth;
-		int[] numberOfUnitsInEachLayer=new int[]{inputUnitsSize+1,7*inputUnitsSize+1,outputUnitsSize};
+		int[] numberOfUnitsInEachLayer=new int[]{timeWindowWidth+1,2*timeWindowWidth+1,timeWindowWidth};
 		this.network=new Network(numberOfUnitsInEachLayer);
 	}
 	
@@ -25,11 +21,11 @@ public class BackPropPredictor implements Predictor{
 		long startTime=System.currentTimeMillis();
 		double minimumNetError=Double.MAX_VALUE;
 		for(int i=0;i<EPOCHS;i++){
-			for(int j=0;j<inputData.length-timeWindowWidth-outputUnitsSize+1;j++){
+			for(int j=0;j<inputData.length-timeWindowWidth-timeWindowWidth+1;j++){
 				double[] timeWindow=new double[timeWindowWidth];
 				System.arraycopy(inputData, j, timeWindow, 0, timeWindowWidth);
-				double[] targetWindow=new double[outputUnitsSize];
-				System.arraycopy(inputData, j+timeWindowWidth, targetWindow, 0, outputUnitsSize);
+				double[] targetWindow=new double[timeWindowWidth];
+				System.arraycopy(inputData, j+timeWindowWidth, targetWindow, 0, timeWindowWidth);
 				for(int k=0;k<10;k++){
 					network.setInput(timeWindow);
 					network.propagate();

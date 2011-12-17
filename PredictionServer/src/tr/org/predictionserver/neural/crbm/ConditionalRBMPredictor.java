@@ -10,20 +10,18 @@ public class ConditionalRBMPredictor  implements Predictor{
 	public final static int DIGIT_SIZE=31;
 	public final static double DOUBLE_TO_BINARY_PRESENTATION_INTERVAL=1/Math.pow(2, DIGIT_SIZE);
 
-	int inputUnitsSize=0;
-	int outputUnitsSize=0;
+
 	int hiddenSize=0;
 	int timeWindowWidth;
 	ConditionalRBM crbm =null;
 	CDConditionalRBMLearner crbmLearner = null;
 	
-	public ConditionalRBMPredictor(int inputUnitsSize,int outputUnitsSize,int timeWindowWidth){
-		this.inputUnitsSize=inputUnitsSize;
-		this.outputUnitsSize=outputUnitsSize;
-		this.hiddenSize=(inputUnitsSize+outputUnitsSize)*DIGIT_SIZE;
+	public ConditionalRBMPredictor(int timeWindowWidth){
+
+		this.hiddenSize=2*timeWindowWidth*DIGIT_SIZE;
 		this.timeWindowWidth=timeWindowWidth;
-    	LinearLayer visibleLayer = new LinearLayer(inputUnitsSize*DIGIT_SIZE);
-    	LinearLayer visibleOutputLayer = new LinearLayer(outputUnitsSize*DIGIT_SIZE);
+    	LinearLayer visibleLayer = new LinearLayer(timeWindowWidth*DIGIT_SIZE);
+    	LinearLayer visibleOutputLayer = new LinearLayer(timeWindowWidth*DIGIT_SIZE);
     	StochasticBinaryLayer hiddenLayer = new StochasticBinaryLayer(hiddenSize);
         crbm = new ConditionalRBM(visibleLayer, visibleOutputLayer, hiddenLayer);
         crbm.learningRate=0.05;
@@ -37,11 +35,11 @@ public class ConditionalRBMPredictor  implements Predictor{
 		
 		for(int i=0;i<EPOCHS;i++){
 			System.out.println("Epoch:"+i);
-			for(int j=0;j<inputData.length-timeWindowWidth-outputUnitsSize+1;j++){
+			for(int j=0;j<inputData.length-timeWindowWidth-timeWindowWidth+1;j++){
 				double[] timeWindow=new double[timeWindowWidth];
 				System.arraycopy(inputData, j, timeWindow, 0, timeWindowWidth);
-				double[] targetWindow=new double[outputUnitsSize];
-				System.arraycopy(inputData, j+timeWindowWidth, targetWindow, 0, outputUnitsSize);
+				double[] targetWindow=new double[timeWindowWidth];
+				System.arraycopy(inputData, j+timeWindowWidth, targetWindow, 0, timeWindowWidth);
 				double minError=Double.MAX_VALUE;
 				for(int k=0;k<10;k++){
 					returnValue.networkError=crbmLearner.Learn(convertRealVectorToBinaryVector(timeWindow), convertRealVectorToBinaryVector(targetWindow));
@@ -56,17 +54,17 @@ public class ConditionalRBMPredictor  implements Predictor{
 		}
 		
 
-		double[][] seed=new double[timeWindowWidth][outputUnitsSize];
-		double[][] batchData=new double[timeWindowWidth][inputUnitsSize];
+		double[][] seed=new double[timeWindowWidth][timeWindowWidth];
+		double[][] batchData=new double[timeWindowWidth][timeWindowWidth];
 
 //		System.out.println("BATCHDATA:");
 		for(int i=0;i<timeWindowWidth;i++){
-			System.arraycopy(inputData, inputData.length-inputUnitsSize-2*timeWindowWidth+i+1,batchData[i], 0, timeWindowWidth);
+			System.arraycopy(inputData, inputData.length-timeWindowWidth-2*timeWindowWidth+i+1,batchData[i], 0, timeWindowWidth);
 //			for(int t=0;t<timeWindowWidth;t++)System.out.print(batchData[i][t]+"-");	System.out.println("");
 		}
 //		System.out.println("SEEDS:");
 		for(int i=0;i<timeWindowWidth;i++){
-			System.arraycopy(inputData, inputData.length-timeWindowWidth-inputUnitsSize+i+1,seed[i], 0, timeWindowWidth);
+			System.arraycopy(inputData, inputData.length-timeWindowWidth-timeWindowWidth+i+1,seed[i], 0, timeWindowWidth);
 //			for(int t=0;t<timeWindowWidth;t++)System.out.print(seed[i][t]+"-");System.out.println("");
 		}
 
@@ -74,11 +72,11 @@ public class ConditionalRBMPredictor  implements Predictor{
 		
 		for(int time=0;time<timeWindowWidth;time++){
 
-			double[][] binaryBatchData=new double[timeWindowWidth][inputUnitsSize*DIGIT_SIZE];
+			double[][] binaryBatchData=new double[timeWindowWidth][timeWindowWidth*DIGIT_SIZE];
 			for(int i=0;i<timeWindowWidth;i++){
 				binaryBatchData[i]=convertRealVectorToBinaryVector(batchData[i]);
 			}
-			double[][] binarySeed=new double[timeWindowWidth][outputUnitsSize*DIGIT_SIZE]; 
+			double[][] binarySeed=new double[timeWindowWidth][timeWindowWidth*DIGIT_SIZE]; 
 			for(int i=0;i<timeWindowWidth;i++){
 				binarySeed[i]=convertRealVectorToBinaryVector(seed[i]);
 			}
@@ -101,8 +99,8 @@ public class ConditionalRBMPredictor  implements Predictor{
 	        
 	        returnValue.predictedValues=convertPredictedBinaryToReal(convertActivationToBinaryVector(targetreconstruction[targetreconstruction.length-1]));
 	        
-			double[][] seedNew=new double[timeWindowWidth][outputUnitsSize];
-			double[][] batchDataNew=new double[timeWindowWidth][inputUnitsSize];
+			double[][] seedNew=new double[timeWindowWidth][timeWindowWidth];
+			double[][] batchDataNew=new double[timeWindowWidth][timeWindowWidth];
 			
 
 			for(int i=0;i<timeWindowWidth-1;i++){
@@ -178,7 +176,7 @@ public class ConditionalRBMPredictor  implements Predictor{
 
 	
 	private double[] convertPredictedBinaryToReal(int[] binaryMatrix){
-		double[] returnValue=new double[outputUnitsSize];
+		double[] returnValue=new double[timeWindowWidth];
 		
 		for(int i=0;i<returnValue.length;i++){
 			double realValue=0;

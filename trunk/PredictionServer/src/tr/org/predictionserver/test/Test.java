@@ -11,16 +11,27 @@ import tr.org.predictionserver.util.FileUtils;
 
 public class Test {
 				public static void main(String[] args){
+					
+					//      timeWindowWidth=5 ile test et. 
+					//      timeWindowWidth=8 ile test et.
+					
+					
+					// Summary               : TekrarNumarası+GirişVeriİstatistikleri+BackPropNetError+BackPropNetTestError+CRBMNetError+CRBMNetTestError
+					// sonuc grafiklerinde : InputData-BackPropReporoducedData-CRBMReproducedData
+					//                                  Altına TekrarNumarası+GirişVeriİstatistikleri+BackPropNetError+BackPropNetTestError+CRBMNetError+CRBMNetTestError Değerleri
+					
+					
 					// neural networks (BackProp, RBM) will take 5 input and give 1 output.
 					// We will make 5 successive predictions in each prediction cycle.
 					
-					int neuralNetworkInputUnitsSize=5;
-					int neuralNetworkOutputUnitsSize=5;
-					int timeWindowWidth=neuralNetworkInputUnitsSize;
+					int timeWindowWidth=6;
+
+//					DataProvider.readFromDataFile("/home/memo/Download/veriler1.txt");
+
 					
 					ArrayList<PredictionResult> predictionResults=new ArrayList<PredictionResult>();
 					
-					for(int dataSetNo=0;dataSetNo<DataProvider.getDataSets().size(); dataSetNo++){
+					for(int dataSetNo=0;dataSetNo<DataProvider.getDataSets(timeWindowWidth).size(); dataSetNo++){
 						for(int tryTheSameDataNumber=0;tryTheSameDataNumber<5;tryTheSameDataNumber++){
 							// 70 tane veri olsun, bunda enson 54'e  kadar gideriz cunku
 							//                 54'te  5 tanesi input ve 1 tanesi test icin etti 60.
@@ -36,11 +47,11 @@ public class Test {
 							//			          time window 1 kaydırılır, bilinen input 5'li sinin sondan bir onceki degeri 666. tahmin , son degeri 67. tahmin edilen noktadır, 68. tahmin edilir
 							// ....., yani ilk tahnminden sonraki tahminlere , daha önceki tahminler input data olur..
 
-							BackPropPredictor backPropPredictor=new BackPropPredictor(neuralNetworkInputUnitsSize,neuralNetworkOutputUnitsSize,timeWindowWidth);
-							ConditionalRBMPredictor  conditionalRBMPredictor=new ConditionalRBMPredictor(neuralNetworkInputUnitsSize,neuralNetworkOutputUnitsSize,timeWindowWidth);
+							BackPropPredictor backPropPredictor=new BackPropPredictor(timeWindowWidth);
+							ConditionalRBMPredictor  conditionalRBMPredictor=new ConditionalRBMPredictor(timeWindowWidth);
 							PredictionResult predictionResult=new PredictionResult();
 							predictionResult.tryNumber=tryTheSameDataNumber;
-							double[] sampleData=DataProvider.getDataSets().get(dataSetNo);
+							double[] sampleData=DataProvider.getDataSets(timeWindowWidth).get(dataSetNo);
 							predictionResult.dataSetLength=sampleData.length;
 							predictionResult.inputData=new double[sampleData.length-timeWindowWidth];
 							 System.arraycopy(sampleData, 0, predictionResult.inputData, 0, sampleData.length-timeWindowWidth);

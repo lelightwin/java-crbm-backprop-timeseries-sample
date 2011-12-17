@@ -1,5 +1,12 @@
 package tr.org.predictionserver.test;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class DataProvider {
@@ -62,7 +69,7 @@ public class DataProvider {
 	};
 
 
-	public static void prepareDataSets(){
+	public static void prepareDataSets(int timeWindowWidth){
 		if(normalizedData==null){
 			for(int i=0;i<allData.length;i++){
 				if(min>allData[i])min=allData[i];
@@ -75,7 +82,7 @@ public class DataProvider {
 		}
 		//normalizedData=allData;
 		for(int i=0;i<numberOfDataSets;i++){
-			int length=i*10+20;
+			int length=(i+4)*timeWindowWidth;
 			int startIndex=(int)(Math.random()*50);
 			double [] dataSet=new double[length];
 			System.arraycopy(normalizedData, startIndex, dataSet, 0, length);
@@ -83,11 +90,52 @@ public class DataProvider {
 		}
 	}
 	
-	public static ArrayList<double[]> getDataSets(){
+	public static ArrayList<double[]> getDataSets(int timeWindowWidth){
 		if(normalizedDataSets==null || normalizedDataSets.size()==0 || normalizedDataSets.get(0)==null){
-			prepareDataSets();
+			prepareDataSets(timeWindowWidth);
 		}
 		return normalizedDataSets;
 	}
+	public static void readFromDataFile(String fileName){
+try{
+BufferedReader inputData = new BufferedReader(new FileReader(fileName));
+String line = null;
+int dataLength = count(fileName);
+allData = new double[dataLength];
+int i = 0;
+while ((line = inputData.readLine()) != null) {
+	line = line.trim();
+	if (line.length() > 0) {
+		allData[i] = Double.parseDouble(line);
+		i++;
+	}
+}
+}catch(NumberFormatException nfe){
+	nfe.printStackTrace();
+} catch (FileNotFoundException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+} catch (IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+}
 
+public static int count(String filename) throws IOException {
+InputStream is = new BufferedInputStream(new FileInputStream(filename));
+try {
+	byte[] c = new byte[1024];
+	int count = 0;
+	int readChars = 0;
+	while ((readChars = is.read(c)) != -1) {
+		for (int i = 0; i < readChars; ++i) {
+			if (c[i] == '\n')
+				++count;
+		}
+	}
+	return count;
+} finally {
+	is.close();
+}
+}
 }

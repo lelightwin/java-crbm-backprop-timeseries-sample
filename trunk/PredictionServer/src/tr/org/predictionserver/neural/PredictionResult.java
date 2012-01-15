@@ -3,7 +3,7 @@ package tr.org.predictionserver.neural;
 import tr.org.predictionserver.neural.crbm.Matrix;
 
 public class PredictionResult{
-	
+	public int timeWindowWidth=0;
 	public int tryNumber;
 	public int dataSetNumber;
 	public int dataSetLength;
@@ -67,5 +67,5 @@ public class PredictionResult{
 		stringBuffer.append("\n");
 		return stringBuffer.toString();
 	}
-	
+
 }

@@ -113,7 +113,7 @@ public class Unit {
 		// DeltaWji= - learningRate * dE/dWji  
 		//                = - learningRate * - error_j * (1-output_j) * output_j * Xji  
 		//                = learningRate * error_j * (1-output_j) * output_j * Xji  
-		// Weight_j=  Weight_j + DeltaWji + Meomentum * DeltaWjiCalculatedOneCycleBefore 
+		// Weight_j=  Weight_j + DeltaWji + Momentum * DeltaWjiCalculatedOneCycleBefore 
 		
 		Iterator<Unit> iterator=input.keySet().iterator();
 		while(iterator.hasNext()){

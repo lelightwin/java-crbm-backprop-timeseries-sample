@@ -59,6 +59,7 @@ public class ConditionalRBMPredictor  implements Predictor{
 
 //		System.out.println("BATCHDATA:");
 		for(int i=0;i<timeWindowWidth;i++){
+		//	System.out.println(inputData.length+"   "+(inputData.length-timeWindowWidth-2*timeWindowWidth+i+1)+"  "+timeWindowWidth);
 			System.arraycopy(inputData, inputData.length-timeWindowWidth-2*timeWindowWidth+i+1,batchData[i], 0, timeWindowWidth);
 //			for(int t=0;t<timeWindowWidth;t++)System.out.print(batchData[i][t]+"-");	System.out.println("");
 		}
